@@ -8,7 +8,7 @@
 
 import UIKit
 
-class CassiniViewController: UIViewController
+class CassiniViewController: UIViewController, UISplitViewControllerDelegate
 {
     private struct Storyboard
     {
@@ -36,6 +36,47 @@ class CassiniViewController: UIViewController
                 ivc.title = imageName
             }
         }
+    }
+    
+    
+    /// iPad and iPhone
+    ///
+    /// - Parameter sender: <#sender description#>
+    @IBAction func showImage(_ sender: UIButton)
+    {   // No segue for iPad
+        if let ivc = splitViewController?.viewControllers.last?.contentViewController as? ImageViewController
+        {
+            let imageName = sender.currentTitle
+            
+            ivc.imageURL = DemoURL.NASAImageNamed(imageName: imageName) as URL?
+            
+            ivc.title = imageName
+        }
+        else  // segue for iPhone
+        {
+            performSegue(withIdentifier: Storyboard.showImageSegue, sender: sender)
+        }
+    }
+    
+    override func viewDidLoad()
+    {
+        super.viewDidLoad()
+        
+        splitViewController?.delegate = self
+    }
+    
+    func splitViewController(_ splitViewController: UISplitViewController, collapseSecondary
+                            secondaryViewController: UIViewController,
+                            onto primaryViewController: UIViewController) -> Bool
+    {
+        if primaryViewController.contentViewController == self
+        {
+            if let ivc = secondaryViewController.contentViewController as? ImageViewController, ivc.imageURL == nil
+            {
+                return true
+            }
+        }
+        return false
     }
 }
 
